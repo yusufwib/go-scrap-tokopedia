@@ -23,11 +23,11 @@ func RandomString() string {
 }
 
 func main() {
-
+	// init the filename
 	fileName := "tokped.csv"
 
 	file, err := os.Create(fileName)
-
+	// check if error
 	if err != nil {
 		log.Fatalf("err: :%q", err)
 		return
@@ -37,6 +37,8 @@ func main() {
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
+
+	//create the header of csv file
 	writer.Write([]string{"Name", "Price", "Rating", "Store", "ProductLink"})
 
 	collector := colly.NewCollector(
@@ -45,12 +47,21 @@ func main() {
 	)
 
 	collector.OnHTML(".css-bk6tzz", func(element *colly.HTMLElement) {
+
+		//find element that contains the value of the product
+
+		productName := element.ChildText(".css-11s9vse span")
+		productPrice := element.ChildText(".css-4u82jy span")
+		produtRate := strconv.Itoa(len(element.ChildAttrs(".css-177n1u3", "alt")))
+		productStore := element.ChildText(".css-vbihp9 span")
+		productLink := element.ChildAttrs("a", "href")[0]
+
 		writer.Write([]string{
-			element.ChildText(".css-11s9vse span"),
-			element.ChildText(".css-4u82jy span"),
-			strconv.Itoa(len(element.ChildAttrs(".css-177n1u3", "alt"))),
-			element.ChildText(".css-vbihp9 span"),
-			element.ChildAttrs("a", "href")[0],
+			productName,
+			productPrice,
+			produtRate,
+			productStore,
+			productLink,
 		})
 	})
 
